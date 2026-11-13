@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>รอบหอย่าทรัพย์ เปิดอยู่ไหม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --salt:#F5F9F8; --card:#FFFFFF; --ink:#13303A; --muted:#5B7279; --line:#D7E3E2;
+  --sea:#0F767A; --sea-soft:#DDF0EF; --open:#178A4C; --open-soft:#DFF3E7;
+  --soon:#B57900; --soon-soft:#FFF1CC; --shut:#B4314F; --shut-soft:#FBE3E8;
+  --unk:#6B7B80; --unk-soft:#E9EEEF; --bar:#E4ECEB; --bar-on:#2FA36B; --now:#13303A;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --salt:#0E1E24; --card:#15292F; --ink:#E6F1F0; --muted:#97AEB3; --line:#26414A;
+    --sea:#5CC6C6; --sea-soft:#173A3E; --open:#5FD394; --open-soft:#163A28;
+    --soon:#F2C14E; --soon-soft:#3A3116; --shut:#F08AA0; --shut-soft:#3B1C25;
+    --unk:#A2B3B7; --unk-soft:#22343A; --bar:#22383F; --bar-on:#3FB37A; --now:#F5F9F8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --salt:#0E1E24; --card:#15292F; --ink:#E6F1F0; --muted:#97AEB3; --line:#26414A;
+  --sea:#5CC6C6; --sea-soft:#173A3E; --open:#5FD394; --open-soft:#163A28;
+  --soon:#F2C14E; --soon-soft:#3A3116; --shut:#F08AA0; --shut-soft:#3B1C25;
+  --unk:#A2B3B7; --unk-soft:#22343A; --bar:#22383F; --bar-on:#3FB37A; --now:#F5F9F8;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 150px)}
+body{margin:0;background:var(--salt);color:var(--ink);font-family:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--salt)}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--salt);border-bottom:1px solid var(--line);padding:14px 0 10px}
+.clockrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:"Mitr","IBM Plex Sans Thai",system-ui,sans-serif;font-weight:600;font-size:1.45rem;line-height:1.2;margin:0}
+.clock{font-family:"Mitr","IBM Plex Sans Thai",system-ui,sans-serif;font-size:1.05rem;color:var(--sea);font-weight:500;white-space:nowrap}
+.sub{color:var(--muted);font-size:.9rem;margin:2px 0 10px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search{flex:1 1 180px;min-width:0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 12px;font:inherit;font-size:.95rem}
+.toggle{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font-size:.92rem;cursor:pointer;user-select:none;color:var(--ink)}
+.toggle[aria-pressed="true"]{background:var(--open-soft);border-color:var(--open);color:var(--open);font-weight:600}
+select.sort{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 10px;font:inherit;font-size:.92rem}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:.88rem;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--sea);border-color:var(--sea);color:var(--salt)}
+.chip small{opacity:.75;margin-left:4px}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+
+.home{margin:16px 0 4px;padding:14px 16px;border-left:4px solid var(--sea);background:var(--sea-soft);border-radius:0 12px 12px 0}
+.home b{font-family:"Mitr",system-ui,sans-serif;font-weight:500}
+.home p{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
+
+section.cat{margin:22px 0 6px}
+.cathead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px}
+h2{font-family:"Mitr","IBM Plex Sans Thai",system-ui,sans-serif;font-weight:500;font-size:1.15rem;margin:0}
+.catcount{font-size:.85rem;color:var(--muted);white-space:nowrap}
+
+.place{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px 10px;margin:0 0 8px}
+.prow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.pname{font-weight:600;font-size:1rem;line-height:1.35}
+.pmeta{font-size:.85rem;color:var(--muted)}
+.badge{flex:0 0 auto;text-align:right;font-size:.82rem;line-height:1.3}
+.badge b{display:inline-block;border-radius:6px;padding:2px 8px;font-weight:600;font-size:.82rem}
+.badge span{display:block;color:var(--muted);margin-top:3px}
+.s-open b{background:var(--open-soft);color:var(--open)}
+.s-soon b{background:var(--soon-soft);color:var(--soon)}
+.s-shut b{background:var(--shut-soft);color:var(--shut)}
+.s-unk b{background:var(--unk-soft);color:var(--unk)}
+
+.bar{position:relative;height:10px;background:var(--bar);border-radius:5px;margin:10px 0 2px;overflow:hidden}
+.seg{position:absolute;top:0;bottom:0;background:var(--bar-on)}
+.nowline{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--now);border-radius:1px}
+.ticks{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);padding:0 1px}
+.unkbar{background:repeating-linear-gradient(90deg,var(--bar) 0 6px,transparent 6px 10px)}
+
+.note{font-size:.88rem;margin:6px 0 0}
+.warn{font-size:.85rem;margin:4px 0 0;color:var(--soon)}
+.actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;flex-wrap:wrap}
+details{font-size:.85rem}
+summary{cursor:pointer;color:var(--sea);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";}
+details[open] summary::before{content:"▾ ";}
+.week{display:grid;grid-template-columns:auto 1fr;gap:1px 14px;margin:6px 0 2px}
+.week .today{font-weight:600;color:var(--sea)}
+a.map{font-size:.85rem;color:var(--sea);text-decoration:none;border:1px solid var(--sea);border-radius:8px;padding:3px 10px;white-space:nowrap}
+a.map:hover{background:var(--sea-soft)}
+.empty{padding:28px 0;color:var(--muted);text-align:center}
+
+.tips{margin:30px 0 10px;padding-top:6px;border-top:1px solid var(--line)}
+.tips h2{margin:14px 0 8px}
+.tips h3{font-family:"Mitr",system-ui,sans-serif;font-weight:500;font-size:1rem;margin:14px 0 4px}
+.tips p,.tips li{font-size:.92rem}
+.tips ol,.tips ul{padding-left:20px;margin:4px 0}
+footer{font-size:.8rem;color:var(--muted);padding:18px 0 34px}
+:root{--seafill:#CDE9EA;--land:#F4F7EF;--shore:#8FC6C1;--road:#E0A93B;--wave:#5FAAAE}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--seafill:#0B2E37;--land:#17282D;--shore:#2C5D63;--road:#B8862A;--wave:#3D8C92}}
+:root[data-theme="dark"]{--seafill:#0B2E37;--land:#17282D;--shore:#2C5D63;--road:#B8862A;--wave:#3D8C92}
+.views{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.views button{border:0;background:var(--card);color:var(--ink);font:inherit;font-size:.92rem;padding:8px 13px;cursor:pointer}
+.views button[aria-pressed="true"]{background:var(--sea);color:var(--salt);font-weight:600}
+#mapwrap{margin:12px 0 0}
+.mapbox{position:relative;height:min(72vh,680px);border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--seafill);touch-action:none}
+#map{width:100%;height:100%;display:block;cursor:grab;user-select:none;-webkit-user-select:none}
+#map.dragging{cursor:grabbing}
+.sea{fill:var(--seafill)}
+.land{fill:var(--land);stroke:var(--shore);stroke-width:3;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.road{fill:none;stroke:var(--road);stroke-width:3;stroke-dasharray:7 6;vector-effect:non-scaling-stroke;stroke-linecap:round;opacity:.8}
+.area{font-family:"Mitr",system-ui,sans-serif;font-size:14px;fill:var(--muted);text-anchor:middle;pointer-events:none;opacity:.85}
+.area.seaname{fill:var(--wave);font-size:17px;letter-spacing:.3em;opacity:1}
+.area.roadname{fill:var(--road);font-size:11px}
+.wave path{fill:none;stroke:var(--wave);stroke-width:1.8;stroke-linecap:round;animation:bob 4.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes bob{0%,100%{transform:translateX(-4px);opacity:.35}50%{transform:translateX(4px);opacity:.9}}
+.mk{cursor:pointer;outline:none}
+.mk .ring{fill:var(--card);stroke-width:3}
+.mk.open .ring{stroke:var(--open)}.mk.soon .ring{stroke:var(--soon)}.mk.shut .ring{stroke:var(--shut)}.mk.unk .ring{stroke:var(--unk)}
+.mk.shut .emo,.mk.unk .emo{opacity:.5}
+.mk .pulse{fill:none;stroke:var(--open);stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:pulse 2.8s ease-out infinite;display:none}
+.mk.live .pulse{display:block}
+.mk.soon .pulse{stroke:var(--soon)}
+@keyframes pulse{0%{transform:scale(1);opacity:.75}100%{transform:scale(2.1);opacity:0}}
+.mk .emo{font-size:15px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.mk .lbl{display:none;font-size:11.5px;font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--land);stroke-width:4px;stroke-linejoin:round;pointer-events:none}
+svg.labels .mk .lbl{display:block}
+.mk:focus-visible .ring{stroke:var(--sea);stroke-width:5}
+.home-mk{cursor:pointer}
+.home-mk .ripple{fill:var(--sea);transform-box:fill-box;transform-origin:center;animation:ripple 2.6s ease-out infinite}
+.home-mk .ripple.r2{animation-delay:1.3s}
+@keyframes ripple{0%{transform:scale(.6);opacity:.4}100%{transform:scale(3);opacity:0}}
+.home-mk .core{fill:var(--sea);stroke:var(--card);stroke-width:3}
+.home-mk .lbl{font-family:"Mitr",system-ui,sans-serif;font-size:13px;font-weight:600;fill:var(--sea);paint-order:stroke;stroke:var(--land);stroke-width:4px;stroke-linejoin:round}
+.mapbtns{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;z-index:2}
+.mapbtns button{pointer-events:auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:.82rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.mapbtns button[aria-pressed="true"]{background:var(--sea);color:var(--salt);border-color:var(--sea)}
+.zoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.zoom button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.25rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.legend{position:absolute;left:10px;bottom:10px;z-index:2;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:.75rem;display:flex;gap:10px;flex-wrap:wrap;max-width:calc(100% - 72px)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;border:3px solid;margin-right:4px;vertical-align:-1px}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:4;max-height:64%;overflow:auto;transform:translateY(calc(100% + 24px));transition:transform .3s ease;border-radius:12px}
+.sheet.show{transform:none}
+.sheet .place{box-shadow:0 8px 28px rgba(0,0,0,.25);margin:0}
+.sheet .x{float:right;border:0;background:none;color:var(--muted);font-size:1.4rem;cursor:pointer;margin:-6px -6px 0 8px;line-height:1;padding:4px}
+.mapnote{font-size:.8rem;color:var(--muted);margin:8px 2px 0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="clockrow">
+      <h1>รอบหอย่าทรัพย์ เปิดอยู่ไหม</h1>
+      <div class="clock" id="clock">กำลังโหลดเวลา</div>
+    </div>
+    <p class="sub" id="summary">นาจอมเทียน สัตหีบ</p>
+    <div class="controls">
+      <input class="search" id="q" type="search" placeholder="ค้นหาชื่อร้าน เช่น เซเว่น, ตลาด, กาแฟ" aria-label="ค้นหาชื่อร้าน">
+      <button class="toggle" id="openOnly" aria-pressed="false" type="button">เฉพาะที่เปิดอยู่</button>
+      <div class="views" role="group" aria-label="มุมมอง"><button type="button" data-view="list" aria-pressed="true">รายการ</button><button type="button" data-view="map" aria-pressed="false">แผนที่</button></div>
+      <select class="sort" id="sort" aria-label="เรียงลำดับ">
+        <option value="cat">แยกตามหมวด</option>
+        <option value="dist">ใกล้สุดก่อน</option>
+      </select>
+    </div>
+    <div class="chips" id="chips" role="toolbar" aria-label="เลือกหมวด"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="home">
+    <b>🏠 หอพักย่าทรัพย์</b> จุดเริ่มต้นของระยะทุกที่ในหน้านี้
+    <p>Google Maps ระบุที่อยู่เป็น “46 หมู่ 8” แต่ที่อยู่จัดส่งคือ “46/4 หมู่ 4 ต.นาจอมเทียน” ถ้าจะส่งของ โทรยืนยันกับหอก่อน 081-782-2580</p>
+  </div>
+  <div id="list"></div>
+  <div id="mapwrap" hidden>
+    <div class="mapbox" id="mapbox">
+      <svg id="map" aria-label="แผนที่ร้านรอบหอ กดหมุดเพื่อดูรายละเอียด"></svg>
+      <div class="mapbtns"><button type="button" data-go="near">รอบหอ</button><button type="button" data-go="south">นาจอมเทียน–บางเสร่</button><button type="button" data-go="pattaya">จอมเทียน–พัทยา</button><button type="button" data-go="all">ทั้งหมด</button></div>
+      <div class="zoom"><button type="button" data-z="in" aria-label="ซูมเข้า">+</button><button type="button" data-z="out" aria-label="ซูมออก">−</button></div>
+      <div class="legend"><span><i style="border-color:var(--open)"></i>เปิด</span><span><i style="border-color:var(--soon)"></i>ใกล้ปิด</span><span><i style="border-color:var(--shut)"></i>ปิด</span><span><i style="border-color:var(--unk)"></i>ไม่ทราบ</span></div>
+      <div class="sheet" id="sheet"></div>
+    </div>
+    <p class="mapnote" id="mapnote">แผนที่วาดแบบย่อ แนวชายฝั่งและถนนสุขุมวิทเป็นแนวโดยประมาณ หมุดที่เปิดอยู่จะกะพริบ กดหมุดเพื่อดูเวลาและนำทาง ลากเพื่อเลื่อน หยิกหรือใช้ล้อเมาส์เพื่อซูม ซูมเข้าใกล้จะเห็นชื่อร้าน</p>
+  </div>
+
+  <div class="tips">
+    <h2>แผนที่แนะนำ</h2>
+    <h3>ของมือสอง แล้วต่อตลาดกลางคืน</h3>
+    <ol>
+      <li>15:30–17:30 เดินตลาดควาย หาเสื้อผ้า รองเท้ามือสอง</li>
+      <li>17:30 เป็นต้นไป เดินราว 450 ม. ไป Thepprasit Night Market กินข้าว</li>
+    </ol>
+    <h3>อาหารทะเลคุ้มๆ</h3>
+    <ol>
+      <li>ไปตลาดบางเสร่ช่วง 6:00–7:00 เลือกอาหารทะเลสด</li>
+      <li>ให้ร้านรอบตลาดทำให้ ถามค่าทำก่อนทุกครั้ง</li>
+      <li>เย็นๆ ดูพระอาทิตย์ตกที่ Maris Cafe หรือ Zaleng’s Café</li>
+    </ol>
+    <h3>วันหยุด 1 วัน</h3>
+    <ol>
+      <li>เช้า สวนนงนุช</li>
+      <li>บ่าย วัดหนองจับเต่า</li>
+      <li>เย็น ตลาดเย็นบางเสร่ แล้วนั่งคาเฟ่ริมทะเล</li>
+    </ol>
+    <h3>ช่วงเงินตึง</h3>
+    <ul>
+      <li>ตลาดนัดกลางคืนใกล้หอ (จ, อ, ศ, ส) เดินไปได้ ไม่เสียค่ารถ</li>
+      <li>สั่งข้าวราดทะเลจานเดียว แทนกับข้าวทะเลเป็นจาน</li>
+      <li>ไปตลาดช่วงใกล้ปิด มักได้ราคาลด</li>
+      <li>เลี่ยงร้านริมหาดและบุฟเฟต์ 399 บาทไว้ก่อน</li>
+    </ul>
+  </div>
+
+  <footer>
+    สถานะเปิดปิดคำนวณจากเวลาประเทศไทยตอนนี้ เทียบกับเวลาเปิดปิดใน Google Maps (ข้อมูล พ.ย. 2569) ร้านเล็กและตลาดนัดอาจเปิดปิดไม่ตรงเวลา และอาจหยุดช่วงวันหยุด ควรเช็กก่อนไป ระยะทุกจุดเป็นระยะเส้นตรงโดยประมาณจากหอ ระยะเดินทางจริงจะไกลกว่านี้ ราคาในหน้านี้มาจากรีวิว อาจเปลี่ยนแล้ว
+  </footer>
+</main>
+
+<script>
+(function(){
+const CATS=[
+ ["conv","🏪","ร้านสะดวกซื้อ"],
+ ["food","🍳","ร้านตามสั่ง"],
+ ["cafe","☕","คาเฟ่"],
+ ["night","🏮","ตลาดกลางคืน & ตลาดสด"],
+ ["buffet","🦐","บุฟเฟต์ทะเลเผา"],
+ ["seafood","🐟","ตลาดอาหารทะเล"],
+ ["brand","🍗","ร้านแบรนด์"],
+ ["print","🖨️","ร้านปริ้น ถ่ายเอกสาร"],
+ ["beach","🏖️","หาด"],
+ ["trip","🌴","ที่เที่ยว"],
+ ["mall","🛒","ห้าง & แม็คโคร"],
+ ["second","👕","ของมือสอง"],
+ ["cinema","🎬","โรงหนัง"]
+];
+// วันเรียง อา จ อ พ พฤ ศ ส | "x" ปิด | "24" ทั้งวัน | "?" ไม่ทราบ
+const D=s=>[s,s,s,s,s,s,s];
+const W=(...a)=>a;
+const P=[
+ // สะดวกซื้อ
+ {c:"conv",n:"7-Eleven (ใกล้หอสุด)",km:.3,h:D("24"),id:"ChIJb71ImLaTAjER63tA0LTH1ao",q:"7-Eleven บ้านอำเภอ นาจอมเทียน"},
+ {c:"conv",n:"Lotus’s Go Fresh",km:.3,h:D("24"),id:"ChIJ-bTEYLaTAjER7BHU4exCttk",t:"ของสด ของใช้ครบกว่าเซเว่น"},
+ {c:"conv",n:"7-Eleven สุขุมวิท-บ้านอำเภอ",km:.35,h:D("24"),id:"ChIJNan9pZeTAjERKEcLdOMGxoE"},
+ {c:"conv",n:"7-Eleven บ้านอำเภอ",km:.6,h:D("24"),q:"7-Eleven บ้านอำเภอ สัตหีบ"},
+ {c:"conv",n:"ปั๊ม PTT (มี 7-Eleven และร้านกาแฟ)",km:.75,h:D("24"),q:"PTT บ้านอำเภอ นาจอมเทียน"},
+ {c:"conv",n:"CJ More นาจอมเทียน 13",km:1.3,h:D("06:00-23:00"),id:"ChIJp0rxlkaTAjEReAuX2zgCL9k"},
+ // ตามสั่ง
+ {c:"food",n:"ต้นมะขาม อาหารตามสั่ง",km:.1,h:"?",t:"คุณยายทำเอง มีเมนูทะเลแบบบ้านๆ (5.0 ดาว)",w:"Google ไม่มีเวลาเปิด โทร 066-005-6064"},
+ {c:"food",n:"อาหารตามสั่ง เจ๊กิญ (กะหรี่ปั๊บบ้านอำเภอ)",km:.23,h:D("07:00-19:00"),t:"เปิดเช้า ยังไม่มีรีวิว"},
+ {c:"food",n:"ร้านอาหารบ้านอำเภอซีฟู้ด",km:.4,h:D("10:00-22:00"),t:"ทะเลสด แต่เป็นร้านซีฟู้ด ราคาสูงกว่าตามสั่ง",w:"มีรีวิวบ่นเรื่องบริการช้า"},
+ {c:"food",n:"ร้านนายพลซีฟู้ด หาดบ้านอำเภอ",km:.8,h:W("09:00-20:00","09:00-20:00","09:00-20:00","09:00-20:00","x","09:00-20:00","09:00-20:00"),t:"ริมหาด ราคาพอดี แต่อาหารมาช้า"},
+ {c:"food",n:"ครัวลุงเจี๊ยบ",km:2.5,h:W("12:00-23:00","12:00-23:00","12:00-23:00","x","12:00-23:00","12:00-23:00","12:00-23:00"),t:"ริมหาด ไม่ใส่ผงชูรส"},
+ {c:"food",n:"ป้ารุ่ง อาหารตามสั่ง",km:2.7,h:D("09:00-20:00"),t:"ต้มยำกุ้ง 150 บาท ได้กุ้ง 8 ตัว ทำไว จานใหญ่"},
+ {c:"food",n:"บ้านบ้านอาหารตามสั่ง",km:2.9,h:W("09:00-17:00","09:00-19:00","09:00-19:00","09:00-19:00","09:00-19:00","09:00-19:00","09:00-19:00"),t:"กะเพราไข่เยี่ยวม้า 70 บาท",w:"ทะเลมักหมดตอนเย็น ไปกลางวันดีกว่า"},
+ {c:"food",n:"ครัวล้านเล่า",km:3.3,h:W("x","10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00","10:00-18:00"),t:"สะอาด มีห้องแอร์ (+10 บาท/คน) ที่จอดรถเยอะ"},
+ {c:"food",n:"Mon & Me Kitchen",km:3.4,h:D("09:00-20:00"),t:"ถูก จานใหญ่ ปลากะพงผัดกะเพรา ข้าวผัดต้มยำกุ้ง"},
+ {c:"food",n:"ครัวแม่อ้อมกับน้องอิ่ม",km:3.8,h:W("11:00-23:00","11:00-23:00","11:00-23:00","11:00-23:00","x","11:00-23:00","11:00-23:00"),t:"ริมหาด ปลาสด วิวดี"},
+ {c:"food",n:"ครัวลุงถอดเสื้อ",km:4,h:D("11:00-21:00"),t:"ทะเลสด ราคาสมเหตุสมผล จานใหญ่"},
+ {c:"food",n:"บ้านป้องครัวคุณนอม",km:4.6,h:D("09:30-21:30"),t:"ร้านครอบครัว เงียบสงบ ผัดไทยอร่อย"},
+ {c:"food",n:"ป้าแว่น อาหารตามสั่ง",km:5.4,h:W("09:00-18:00","09:00-18:00","x","09:00-18:00","09:00-18:00","09:00-18:00","09:00-18:00"),t:"รีวิวบอกถูกสุดในย่าน ทะเลสด"},
+ // คาเฟ่
+ {c:"cafe",n:"Back to School Cafe & Roastery",km:.5,h:D("08:00-18:00"),id:"ChIJwQawNuiTAjERH6aCrLJfU58",t:"ธีมโรงเรียนเก่า กว้าง นั่งทำงานได้"},
+ {c:"cafe",n:"PIO Coffee",km:1.4,h:W("09:00-17:00","09:00-17:00","x","09:00-17:00","09:00-17:00","09:00-17:00","09:00-17:00"),id:"ChIJfwC9UX6TAjERrCRoCfMsxNo",t:"กาแฟสไตล์เมลเบิร์น ราคาคุ้ม"},
+ {c:"cafe",n:"Tetebeach",km:2.7,h:D("11:00-00:00"),id:"ChIJ1fad2YOTAjER63K4v0xmXvw",t:"ริมหาด วิวทะเล ดูพระอาทิตย์ตก"},
+ {c:"cafe",n:"Buono Cafe",km:3.2,h:D("09:00-17:30"),id:"ChIJn5bI5xeTAjER1gd1oiTUvc0",t:"ร้านไม้ในสวน มีแอร์ ราคาคุ้มค่า"},
+ {c:"cafe",n:"Siri’s Beach Café",km:3.9,h:W("09:30-21:00","09:30-21:00","x","09:30-21:00","09:30-21:00","09:30-21:00","09:30-21:00"),id:"ChIJZwf8kPuTAjERZUsU28nRakw",t:"ริมหาด วิวทะเล"},
+ {c:"cafe",n:"Balllly.Cafe",km:4.2,h:W("09:00-02:00","09:00-02:00","x","09:00-02:00","09:00-02:00","09:00-02:00","09:00-02:00"),id:"ChIJ-clKGwCVAjERh9B5hRbswqE",t:"กลางวันคาเฟ่ กลางคืนบาร์ ราคาสมเหตุสมผล"},
+ {c:"cafe",n:"À La Campagne",km:4.5,h:D("10:00-20:00"),id:"ChIJfxwmcgyUAjERj6sggL8jeGE",t:"ร้านใหญ่ในสวน มีน้ำพุและม้า"},
+ {c:"cafe",n:"Sea of Love",km:4.8,h:"?",t:"ฟีลกรีซ มีสระริมทะเล"},
+ {c:"cafe",n:"Escape Specialty Coffee",km:5.3,h:D("08:30-17:00"),id:"ChIJobZWyxKVAjER1gsuFFcIY4o",t:"ธีมแมว มีบอร์ดเกม แพงนิดหน่อย"},
+ {c:"cafe",n:"Zaleng’s Café",km:5.4,h:W("?","?","x","?","?","x","?"),t:"ริมถนนเลียบหาดบางเสร่ ราคาไม่แพง"},
+ {c:"cafe",n:"CK Coffee (รถเข็นกาแฟ)",km:6,h:D("07:00-13:00"),id:"ChIJD9cR6-SVAjERUVPpqgxfOwE",t:"ยกเก้าอี้ไปนั่งริมหาดได้ เหมาะตอนเช้า"},
+ {c:"cafe",n:"Maris Cafe",km:6.7,h:"?",t:"ดังเรื่องพระอาทิตย์ตก ไปก่อนตก 30–40 นาที"},
+ {c:"cafe",n:"Coco Rodante",km:7.2,h:W("?","?","?","x","?","?","?"),t:"คาเฟ่รถตู้ริมทะเล เครื่องดื่มราว 100 บาท"},
+ {c:"cafe",n:"Branch Coffee Beach",km:8.5,h:W("07:30-17:00","07:30-17:00","07:30-17:00","x","07:30-17:00","07:30-17:00","07:30-17:00"),id:"ChIJCejx2I2XAjERdzVyvYDNguI",t:"ใต้ต้นไม้ใหญ่ วิวทะเล เมนูราคาเป็นมิตร",w:"คิดค่าห้องน้ำ"},
+ // ตลาดกลางคืน & ตลาดสด
+ {c:"night",n:"ตลาดนัดกลางคืนบ้านอำเภอ",km:.2,h:W("x","15:00-21:00","15:00-21:00","x","x","15:00-21:00","15:00-21:00"),t:"ใกล้หอสุด อาหารราคาถูก",q:"Night Market บ้านอำเภอ นาจอมเทียน"},
+ {c:"night",n:"ตลาดสดบ้านอำเภอ",km:.2,h:W("x","09:00-19:00","09:00-19:00","09:00-19:00","x","09:00-19:00","09:00-19:00"),id:"ChIJwSC4RriTAjERVnZ8YOEDgTw",t:"เนื้อสัตว์ ผัก อาหารสำเร็จ"},
+ {c:"night",n:"ตลาดเย็นบางเสร่",km:6.3,h:"?",id:"ChIJq-ue-GiNAjER902TK_yheYM",t:"เริ่มคึกคักหลัง 15:00 ไก่ทอด 10 บาท"},
+ {c:"night",n:"The Big Market จอมเทียน",km:6.6,h:D("16:00-01:00"),t:"สะอาด คนไม่แน่น มีจอหนังกลางแจ้ง"},
+ {c:"night",n:"ตลาดนัดกลางคืนจอมเทียน",km:9,h:D("17:00-23:00"),t:"ใหญ่และดังสุด ของกินหลากหลาย"},
+ {c:"night",n:"Thepprasit Night Market",km:10,h:D("17:00-22:30"),t:"โซนอาหารใหญ่ ราคาถูก ห่างตลาดควาย 450 ม."},
+ {c:"night",n:"ตลาดนำชัยแฟร์ พัทยากลาง",km:13,h:W("?","16:00-23:00","?","?","16:00-23:00","?","?"),id:"ChIJp-9ciDmVAjERnHwafFCggTk",t:"ตลาดคนท้องถิ่น มีของวินเทจ",w:"ข้อมูลวันเปิดขัดกัน โทร 081-514-5265"},
+ // บุฟเฟต์
+ {c:"buffet",n:"สามใบเถา หมูกระทะ & ทะเลเผา",km:.65,h:D("17:00-23:00"),t:"269 บาท (จากรีวิว) มีกุ้งแม่น้ำ",w:"แนวหมูกระทะ ทะเลอาจมีน้อย โทร 092-101-9295"},
+ {c:"buffet",n:"อลังการ แคมป์ปิ้ง หมูกระทะ",km:3.6,h:"?",t:"บรรยากาศแคมป์ปิ้ง ไม่ชัดว่ามีทะเล"},
+ {c:"buffet",n:"จอมเทียนทะเลเผา",km:7,h:W("15:00-22:00","15:30-22:00","15:30-22:00","15:30-22:00","15:30-22:00","15:30-22:00","15:00-22:00"),t:"ราว 400 บาท ของสด",w:"คิวยาว บางคนรอเกินชั่วโมง"},
+ {c:"buffet",n:"ร้าน 399 บาท (ป้ายภาษารัสเซีย)",km:7.4,h:D("15:00-00:00"),t:"399 บาท กุ้งปูเป็นๆ ดนตรีสด",w:"คนเยอะมาก มีค่าปรับถ้ากินเหลือ",q:"seafood buffet 399 Jomtien"},
+ {c:"buffet",n:"Apa Talay Pao",km:7.4,h:D("15:00-23:00"),t:"399–430 บาท มีซูชิ ส้มตำด้วย"},
+ {c:"buffet",n:"BayBay BBQ Seafood Buffet",km:7.5,h:D("16:00-23:00"),t:"399 บาท สะอาด เงียบ ไม่ต้องรอคิว"},
+ {c:"buffet",n:"Big Whale Buffet",km:8,h:D("16:00-00:00"),t:"399 บาท กุ้งใหญ่ไม่อั้น"},
+ {c:"buffet",n:"กุ้งมังกร ทะเลเผา",km:8,h:D("16:00-00:00"),t:"ใกล้ตลาดใหญ่มาก ริมหาดจอมเทียน"},
+ // ตลาดอาหารทะเล
+ {c:"seafood",n:"ตลาดบางเสร่ (ตลาดเช้า)",km:6.3,h:D("05:00-17:00"),id:"ChIJs-0Aef-NAjERNVJgmOFmosw",t:"เลือกของสดให้ร้านรอบตลาดทำ รีวิวบอกไม่คิดค่าทำ ไป 6–7 โมงได้ของดี"},
+ {c:"seafood",n:"ตลาดประมงพื้นบ้านหาดจอมเทียน",km:7,h:D("05:00-12:00"),t:"ซื้อจากเรือ ให้ร้านตรงข้ามนึ่ง ราว 50 บาท"},
+ {c:"seafood",n:"ตลาดลานโพธิ์ นาเกลือ",km:17,h:D("06:00-18:00"),t:"ใหญ่สุด ค่าทำราว 30 บาท/กก.",w:"ราคาแบบนักท่องเที่ยว เดินเทียบและต่อราคา"},
+ {c:"seafood",n:"ตลาดอาหารทะเลแสมสาร",km:27,h:"?",t:"นึ่ง 20 บาท/กก. ย่าง 40 บาท/กก. (รีวิวปี 2024)"},
+ // แบรนด์
+ {c:"brand",n:"KFC (ปั๊ม Caltex นาจอมเทียน)",km:1.5,h:D("08:00-22:00")},
+ {c:"brand",n:"The Pizza Company (ปั๊ม Caltex)",km:1.5,h:D("09:00-23:00")},
+ {c:"brand",n:"Café Amazon Mimosa",km:2.2,h:D("07:00-16:30")},
+ {c:"brand",n:"Café Amazon ถ.สุขุมวิท",km:2.5,h:D("06:00-19:30"),q:"Café Amazon สุขุมวิท นาจอมเทียน"},
+ {c:"brand",n:"Swensen’s จอมเทียน",km:8,h:D("10:00-02:00")},
+ {c:"brand",n:"McDonald’s หาดจอมเทียน",km:9,h:D("24")},
+ // ปริ้น
+ {c:"print",n:"PPM Copy Center",km:.55,h:W("x","09:30-17:30","09:30-17:30","09:30-17:30","09:30-17:30","09:30-17:30","x"),w:"มีรีวิวว่าบางวันร้านปิดทั้งที่ควรเปิด"},
+ {c:"print",n:"SSCOPY",km:.7,h:W("08:00-17:00","07:30-19:00","07:30-19:00","07:30-19:00","07:30-19:00","07:30-19:00","x"),t:"5.0 ดาว ปริ้นจากอีเมล/USB ถ่ายรูปติดบัตร เข้าเล่ม"},
+ {c:"print",n:"Print Shop บ้านอำเภอ",km:.7,h:W("x","08:00-19:00","08:00-19:00","08:00-19:00","08:00-19:00","08:00-19:00","08:00-19:00"),w:"มีรีวิวบอกร้านปิดแล้ว โทรเช็ก 082-909-4427"},
+ {c:"print",n:"ถ่ายเอกสารเอื้ออาทร ตึก 94",km:3.3,h:W("10:30-23:30","10:30-22:30","10:30-22:30","10:30-22:30","10:30-22:30","10:30-23:30","10:30-23:30"),t:"เปิดดึก"},
+ // หาด
+ {c:"beach",n:"หาดบ้านอำเภอ",km:1,h:"always",t:"เงียบ สะอาด มีสะพานลงทะเล เหมาะดูพระอาทิตย์ตก พกเก้าอี้ไปเอง"},
+ {c:"beach",n:"หาดตะวันรอน",km:3,h:"always",w:"รีวิวบอกเป็นที่ดินส่วนบุคคล เช็กก่อนไป"},
+ {c:"beach",n:"หาดนาจอมเทียน",km:5.5,h:"always",t:"เงียบ อาหารราคาไม่แพง"},
+ {c:"beach",n:"หาดบางเสร่",km:6,h:"always",t:"หมู่บ้านชาวประมง อาหารทะเลสด"},
+ {c:"beach",n:"หาดจอมเทียน",km:8.5,h:"always",t:"คึกคัก เตียงผ้าใบราว 100 บาท"},
+ {c:"beach",n:"หาดหยินหยอม",km:11,h:"always",t:"เงียบ ร่มรื่น น้ำนิ่ง"},
+ // ที่เที่ยว
+ {c:"trip",n:"วัดหนองจับเต่า",km:3.4,h:"?",t:"โบสถ์สีขาวบนเต่ายักษ์ ถ่ายรูปสวย"},
+ {c:"trip",n:"วัดเขาบำเพ็ญบุญ",km:4.9,h:"?",t:"บนเขา เห็นวิวพัทยาและบางเสร่"},
+ {c:"trip",n:"Tarzan Adventure",km:6.2,h:D("09:00-17:30"),t:"ซิปไลน์ 25 ฐาน"},
+ {c:"trip",n:"สวนนงนุช",km:6.3,h:D("08:00-18:00"),t:"ไฮไลต์ของย่าน สวนใหญ่ หุบไดโนเสาร์ โชว์ไทย"},
+ {c:"trip",n:"Suriyaland",km:8,h:"?",t:"คาเฟ่ + ร้านของวินเทจญี่ปุ่น เข้าฟรี"},
+ {c:"trip",n:"วัดเขาชีจรรย์",km:9.3,h:"?",t:"พระพุทธรูปทองบนหน้าผา แต่งกายสุภาพ"},
+ // ห้าง
+ {c:"mall",n:"Makro พัทยาใต้",km:9,h:D("06:00-23:00"),w:"รีวิวบอกถ้าไม่เป็นสมาชิก จ่ายได้แค่เงินสด"},
+ {c:"mall",n:"Lotus’s พัทยาใต้",km:10,h:D("08:00-22:00"),t:"ติด Outlet Mall"},
+ {c:"mall",n:"Big C Supercenter พัทยาใต้",km:11,h:D("09:00-23:00")},
+ {c:"mall",n:"Big C Place พัทยากลาง",km:13,h:D("08:00-23:00"),t:"มี HomePro"},
+ {c:"mall",n:"Central Pattaya",km:13,h:W("11:00-23:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-22:00","11:00-23:00","11:00-23:00"),t:"ห้างใหญ่สุดในย่าน"},
+ {c:"mall",n:"Big C Supercenter สัตหีบ",km:13,h:D("08:00-22:00"),t:"มีโรงหนัง ติด Makro และตลาด 700 ไร่"},
+ {c:"mall",n:"Makro สัตหีบ",km:13,h:D("06:00-23:00")},
+ {c:"mall",n:"Lotus’s อู่ตะเภา",km:15,h:D("07:00-21:00")},
+ {c:"mall",n:"Makro Food Service พัทยาเหนือ",km:15,h:D("06:00-22:00"),t:"วัตถุดิบสำหรับร้านอาหาร"},
+ {c:"mall",n:"Lotus’s สัตหีบ",km:16,h:D("08:00-21:00"),t:"มีโรงหนัง ธนาคาร"},
+ // มือสอง
+ {c:"second",n:"บอสบูรพา เสื้อผ้ามือสอง",km:9,h:"?",t:"ซักรีดแล้ว ป้ายราคาไซซ์ชัด"},
+ {c:"second",n:"ตลาดควาย (Buffalo Market)",km:10,h:D("15:00-22:00"),t:"เสื้อผ้า รองเท้าเริ่ม 40–50 บาท ของเก่า"},
+ {c:"second",n:"Case2hand Shop",km:10,h:W("x","08:00-18:00","08:00-18:00","08:00-18:00","08:00-18:00","08:00-18:00","09:00-17:00"),t:"เฟอร์นิเจอร์ ของใช้ในบ้าน"},
+ {c:"second",n:"Pattaya’s Secondhand Shop",km:10,h:W("x","08:00-18:00","08:00-18:00","08:00-18:00","08:00-18:00","08:00-18:00","08:00-18:00"),t:"เฟอร์นิเจอร์",w:"มีรีวิวเตือนเรื่องราคาเปลี่ยนหลังตกลง"},
+ {c:"second",n:"Grand Hall Market",km:12,h:D("07:00-17:00"),t:"ในร่ม คึกคักสุดวันอังคารและศุกร์"},
+ {c:"second",n:"Cen Pattaya (วินเทจ)",km:12,h:D("12:00-22:00"),t:"คัดของดี ส่วนใหญ่ไม่เกิน 200 บาท"},
+ {c:"second",n:"โกดังซาบิ เสื้อผ้าญี่ปุ่นมือสอง",km:13,h:W("10:00-18:30","10:00-18:30","10:00-18:30","10:00-18:30","10:00-18:30","x","10:00-18:30")},
+ {c:"second",n:"ตลาด 700 ไร่ สัตหีบ",km:13.5,h:W("x","15:00-21:00","x","x","15:00-21:00","x","15:00-21:00"),t:"ของมือสองปนของใหม่ ติด Big C สัตหีบ"},
+ // โรงหนัง
+ {c:"cinema",n:"Major Cineplex Pattaya Avenue",km:12.5,h:D("10:00-00:00"),t:"คนไม่เยอะ เสียงภาพดี"},
+ {c:"cinema",n:"SFX Central Pattaya",km:13,h:D("11:00-23:00")},
+ {c:"cinema",n:"Major Cineplex Big C สัตหีบ",km:13.5,h:"?",t:"ไปต่อกับตลาด 700 ไร่ได้"},
+ {c:"cinema",n:"SF Central Marina",km:14,h:D("07:00-22:00"),t:"ตั๋วถูก มีรีวิวบอก 120 บาท"},
+ {c:"cinema",n:"SFX Terminal 21",km:14.5,h:D("10:00-00:00"),t:"ใหม่ สะอาด เบาะสบาย"}
+];
+
+const DAYS=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสฯ","ศุกร์","เสาร์"];
+const toMin=s=>{const [a,b]=s.split(":").map(Number);return a*60+b;};
+function parse(s){
+  if(s==="x")return [];
+  if(s==="?")return null;
+  if(s==="24")return [[0,1440]];
+  return s.split(",").map(r=>{let [o,c]=r.split("-").map(toMin);if(c<=o)c+=1440;return [o,c];});
+}
+function ranges(p,d){
+  if(p.h==="always")return [[0,1440]];
+  if(p.h==="?")return null;
+  return parse(p.h[d]);
+}
+const pad=n=>String(n).padStart(2,"0");
+const fmt=m=>{m=((m%1440)+1440)%1440;return pad(Math.floor(m/60))+":"+pad(m%60);};
+function dayText(rs){
+  if(rs===null)return "ไม่ทราบเวลา";
+  if(!rs.length)return "ปิด";
+  if(rs.length===1&&rs[0][0]===0&&rs[0][1]===1440)return "24 ชม.";
+  return rs.map(r=>fmt(r[0])+"–"+(r[1]===1440?"24:00":fmt(r[1]))).join(", ");
+}
+function bkkNow(){
+  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Bangkok",weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const g=t=>(parts.find(x=>x.type===t)||{}).value;
+  const map={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+  return {d:map[g("weekday")],m:(Number(g("hour"))%24)*60+Number(g("minute"))};
+}
+function status(p,d,m){
+  if(p.h==="always")return {k:"open",label:"เข้าได้ตลอด",sub:""};
+  const t=ranges(p,d), y=ranges(p,(d+6)%7);
+  if(t&&t.length===1&&t[0][0]===0&&t[0][1]===1440)return {k:"open",label:"เปิด 24 ชม.",sub:""};
+  let closeAt=null;
+  if(y)for(const r of y){if(r[1]>1440&&m<r[1]-1440)closeAt=r[1]-1440;}
+  if(t)for(const r of t){if(m>=r[0]&&m<r[1])closeAt=r[1];}
+  if(closeAt!==null){
+    const left=closeAt-m;
+    if(left<=60)return {k:"soon",label:"ใกล้ปิด",sub:"ปิดใน "+left+" นาที"};
+    return {k:"open",label:"เปิดอยู่",sub:"ปิด "+(closeAt===1440?"24:00":fmt(closeAt))+(closeAt>1440?" (หลังเที่ยงคืน)":"")};
+  }
+  if(t===null)return {k:"unk",label:"ไม่ทราบเวลา",sub:"เช็กก่อนไป"};
+  for(let i=0;i<7;i++){
+    const dd=(d+i)%7, rs=ranges(p,dd);
+    if(!rs)continue;
+    const sorted=rs.slice().sort((a,b)=>a[0]-b[0]);
+    for(const r of sorted){
+      if(i===0&&r[0]<=m)continue;
+      if(i===0){
+        const wait=r[0]-m;
+        if(wait<=60)return {k:"shut",label:"ปิดอยู่",sub:"เปิดใน "+wait+" นาที"};
+        return {k:"shut",label:"ปิดอยู่",sub:"เปิด "+fmt(r[0])};
+      }
+      return {k:"shut",label:"ปิดอยู่",sub:(i===1?"พรุ่งนี้ ":"วัน"+DAYS[dd]+" ")+fmt(r[0])};
+    }
+  }
+  return {k:"shut",label:"ปิดอยู่",sub:""};
+}
+function distText(km){return km<1?"~"+Math.round(km*1000/50)*50+" ม.":"~"+(Number.isInteger(km)?km:km.toFixed(1))+" กม.";}
+function mapUrl(p){
+  const q=encodeURIComponent(p.q||(p.n+" นาจอมเทียน ชลบุรี"));
+  return "https://www.google.com/maps/search/?api=1&query="+q+(p.id?"&query_place_id="+p.id:"");
+}
+function bar(p,d,m){
+  const t=ranges(p,d), y=ranges(p,(d+6)%7);
+  if(t===null)return '<div class="bar unkbar" aria-hidden="true"><div class="nowline" style="left:calc('+(m/1440*100)+'% - 1px)"></div></div>';
+  let segs="";
+  const add=(a,b)=>{segs+='<div class="seg" style="left:'+(a/1440*100)+'%;width:'+((b-a)/1440*100)+'%"></div>';};
+  if(y)for(const r of y){if(r[1]>1440)add(0,r[1]-1440);}
+  for(const r of t)add(r[0],Math.min(r[1],1440));
+  return '<div class="bar" aria-hidden="true">'+segs+'<div class="nowline" style="left:calc('+(m/1440*100)+'% - 1px)"></div></div><div class="ticks" aria-hidden="true"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>';
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const state={cat:"all",open:false,sort:"cat",q:""};
+const openSet=new Set();
+
+function card(p,d,m){
+  const s=status(p,d,m);
+  const cls={open:"s-open",soon:"s-soon",shut:"s-shut",unk:"s-unk"}[s.k];
+  let week="";
+  if(p.h!=="always"){
+    week='<details data-key="'+esc(p.n)+'"'+(openSet.has(p.n)?" open":"")+'><summary>เวลาทั้งสัปดาห์</summary><div class="week">'+
+      [1,2,3,4,5,6,0].map(i=>'<span class="'+(i===d?"today":"")+'">'+DAYS[i]+'</span><span class="'+(i===d?"today":"")+'">'+dayText(ranges(p,i))+'</span>').join("")+
+      '</div></details>';
+  } else week="<span></span>";
+  return '<article class="place">'+
+    '<div class="prow"><div><div class="pname">'+esc(p.n)+'</div><div class="pmeta">'+distText(p.km)+' จากหอ, วันนี้ '+dayText(ranges(p,d))+'</div></div>'+
+    '<div class="badge '+cls+'"><b>'+s.label+'</b>'+(s.sub?'<span>'+s.sub+'</span>':"")+'</div></div>'+
+    bar(p,d,m)+
+    (p.t?'<p class="note">'+esc(p.t)+'</p>':"")+
+    (p.w?'<p class="warn">⚠️ '+esc(p.w)+'</p>':"")+
+    '<div class="actions">'+week+'<a class="map" href="'+mapUrl(p)+'" target="_blank" rel="noopener">เปิดใน Google Maps</a></div>'+
+  '</article>';
+}
+const isOpen=(p,d,m)=>{const k=status(p,d,m).k;return k==="open"||k==="soon";};
+
+function render(){
+  const {d,m}=bkkNow();
+  document.getElementById("clock").textContent="วัน"+DAYS[d]+" "+fmt(m)+" น.";
+  const openCount=P.filter(p=>p.h!=="always"&&isOpen(p,d,m)).length;
+  document.getElementById("summary").textContent="ตอนนี้เปิดอยู่ "+openCount+" ที่ จากทั้งหมด "+P.filter(p=>p.h!=="always").length+" ร้านและสถานที่ (ไม่รวมหาด)";
+  // chips
+  const chips=document.getElementById("chips");
+  chips.innerHTML=[["all","","ทั้งหมด"]].concat(CATS).map(([k,e,l])=>{
+    const items=k==="all"?P:P.filter(p=>p.c===k);
+    const n=items.filter(p=>isOpen(p,d,m)).length;
+    return '<button class="chip" type="button" data-cat="'+k+'" aria-pressed="'+(state.cat===k)+'">'+(e?e+" ":"")+l+'<small>'+n+'/'+items.length+'</small></button>';
+  }).join("");
+  // filter
+  const q=state.q.trim().toLowerCase();
+  let items=P.filter(p=>(state.cat==="all"||p.c===state.cat)&&(!state.open||isOpen(p,d,m))&&(!q||(p.n+" "+(p.t||"")).toLowerCase().includes(q)));
+  const list=document.getElementById("list");
+  if(!items.length){list.innerHTML='<p class="empty">ไม่มีที่ตรงกับตัวกรองตอนนี้ ลองปิด “เฉพาะที่เปิดอยู่” หรือเปลี่ยนหมวด</p>';return;}
+  if(state.sort==="dist"){
+    items.sort((a,b)=>a.km-b.km);
+    list.innerHTML='<section class="cat">'+items.map(p=>card(p,d,m)).join("")+'</section>';
+  } else {
+    list.innerHTML=CATS.map(([k,e,l])=>{
+      const g=items.filter(p=>p.c===k).sort((a,b)=>a.km-b.km);
+      if(!g.length)return "";
+      const all=P.filter(p=>p.c===k);
+      const n=all.filter(p=>isOpen(p,d,m)).length;
+      return '<section class="cat" id="'+k+'"><div class="cathead"><h2>'+e+" "+l+'</h2><span class="catcount">เปิดอยู่ '+n+' จาก '+all.length+'</span></div>'+g.map(p=>card(p,d,m)).join("")+'</section>';
+    }).join("");
+  }
+}
+// ---------- แผนที่ ----------
+const LL={
+"7-Eleven (ใกล้หอสุด)":[12.82038,100.91669],"Lotus’s Go Fresh":[12.82008,100.91683],"7-Eleven สุขุมวิท-บ้านอำเภอ":[12.8173,100.91689],"7-Eleven บ้านอำเภอ":[12.81402,100.91649],"ปั๊ม PTT (มี 7-Eleven และร้านกาแฟ)":[12.82576,100.915],"CJ More นาจอมเทียน 13":[12.82409,100.92553],
+"ต้นมะขาม อาหารตามสั่ง":[12.82,100.9148],"อาหารตามสั่ง เจ๊กิญ (กะหรี่ปั๊บบ้านอำเภอ)":[12.8176,100.9126],"ร้านอาหารบ้านอำเภอซีฟู้ด":[12.8158,100.9123],"ร้านนายพลซีฟู้ด หาดบ้านอำเภอ":[12.8118,100.9126],"ครัวลุงเจี๊ยบ":[12.8412,100.9045],"ป้ารุ่ง อาหารตามสั่ง":[12.8431,100.9105],"บ้านบ้านอาหารตามสั่ง":[12.8445,100.9074],"ครัวล้านเล่า":[12.7897,100.9171],"Mon & Me Kitchen":[12.7888,100.9166],"ครัวแม่อ้อมกับน้องอิ่ม":[12.8525,100.8997],"ครัวลุงถอดเสื้อ":[12.8543,100.9],"บ้านป้องครัวคุณนอม":[12.7828,100.9337],"ป้าแว่น อาหารตามสั่ง":[12.8641,100.8957],
+"Back to School Cafe & Roastery":[12.82076,100.91834],"PIO Coffee":[12.80795,100.9198],"Tetebeach":[12.84168,100.90437],"Buono Cafe":[12.79262,100.92524],"Siri’s Beach Café":[12.85169,100.90005],"Balllly.Cafe":[12.85645,100.90941],"À La Campagne":[12.85981,100.9086],"Sea of Love":[12.7768,100.9028],"Escape Specialty Coffee":[12.86353,100.89469],"Zaleng’s Café":[12.7727,100.9001],"CK Coffee (รถเข็นกาแฟ)":[12.86821,100.89139],"Maris Cafe":[12.7642,100.8881],"Coco Rodante":[12.7611,100.8835],"Branch Coffee Beach":[12.8865,100.87791],
+"ตลาดนัดกลางคืนบ้านอำเภอ":[12.821,100.9148],"ตลาดสดบ้านอำเภอ":[12.8205,100.9144],"ตลาดเย็นบางเสร่":[12.76163,100.8985],"The Big Market จอมเทียน":[12.8727,100.8885],"ตลาดนัดกลางคืนจอมเทียน":[12.8914,100.874],"ตลาดนำชัยแฟร์ พัทยากลาง":[12.93393,100.90367],
+"สามใบเถา หมูกระทะ & ทะเลเผา":[12.8212,100.9199],"อลังการ แคมป์ปิ้ง หมูกระทะ":[12.8513,100.9107],"จอมเทียนทะเลเผา":[12.8803,100.8965],"ร้าน 399 บาท (ป้ายภาษารัสเซีย)":[12.8807,100.8887],"Apa Talay Pao":[12.8801,100.8893],"BayBay BBQ Seafood Buffet":[12.8819,100.8875],"Big Whale Buffet":[12.8844,100.8849],"กุ้งมังกร ทะเลเผา":[12.8833,100.8804],
+"ตลาดบางเสร่ (ตลาดเช้า)":[12.76279,100.89338],"ตลาดประมงพื้นบ้านหาดจอมเทียน":[12.8769,100.8851],"ตลาดลานโพธิ์ นาเกลือ":[12.9732,100.9062],
+"KFC (ปั๊ม Caltex นาจอมเทียน)":[12.83271,100.91407],"The Pizza Company (ปั๊ม Caltex)":[12.83298,100.91456],"Café Amazon Mimosa":[12.83919,100.91205],"Café Amazon ถ.สุขุมวิท":[12.79658,100.91695],"Swensen’s จอมเทียน":[12.8826,100.8812],
+"PPM Copy Center":[12.81439,100.91647],"SSCOPY":[12.813,100.91648],"Print Shop บ้านอำเภอ":[12.8132,100.917],"ถ่ายเอกสารเอื้ออาทร ตึก 94":[12.8487,100.9157],
+"หาดบ้านอำเภอ":[12.81055,100.91281],"หาดตะวันรอน":[12.7928,100.909],"หาดนาจอมเทียน":[12.8647,100.8934],"หาดบางเสร่":[12.7676,100.8954],"หาดจอมเทียน":[12.8875,100.8768],
+"วัดหนองจับเต่า":[12.7914,100.9288],"วัดเขาบำเพ็ญบุญ":[12.7753,100.9149],"Tarzan Adventure":[12.7774,100.9518],"สวนนงนุช":[12.7655,100.9351],"Suriyaland":[12.7489,100.9361],"วัดเขาชีจรรย์":[12.7456,100.955],
+"Makro พัทยาใต้":[12.89777,100.89474],"Lotus’s พัทยาใต้":[12.9058,100.8953],"Big C Supercenter พัทยาใต้":[12.9153,100.8947],"Big C Place พัทยากลาง":[12.9347,100.8944],"Central Pattaya":[12.9343,100.8841],"Big C Supercenter สัตหีบ":[12.7008,100.8885],"Makro สัตหีบ":[12.7018,100.8897],"Lotus’s อู่ตะเภา":[12.6925,100.9761],"Lotus’s สัตหีบ":[12.672,100.8984],
+"บอสบูรพา เสื้อผ้ามือสอง":[12.8993,100.8978],"ตลาดควาย (Buffalo Market)":[12.9085,100.8888],"Case2hand Shop":[12.9058,100.8866],"Pattaya’s Secondhand Shop":[12.9068,100.885],"Grand Hall Market":[12.9245,100.8789],"Cen Pattaya (วินเทจ)":[12.9303,100.8786],"ตลาด 700 ไร่ สัตหีบ":[12.6988,100.89],
+"Major Cineplex Pattaya Avenue":[12.9292,100.8817],"SFX Central Pattaya":[12.9349,100.8833],"Major Cineplex Big C สัตหีบ":[12.6999,100.8876],"SF Central Marina":[12.9457,100.8912],"SFX Terminal 21":[12.9494,100.8907]
+};
+const COAST=[[12.985,100.906],[12.972,100.902],[12.955,100.887],[12.94,100.88],[12.925,100.8745],[12.915,100.866],[12.905,100.863],[12.897,100.87],[12.886,100.8762],[12.874,100.8835],[12.864,100.8905],[12.852,100.8975],[12.842,100.9032],[12.832,100.9085],[12.82,100.9113],[12.8105,100.9121],[12.8,100.9105],[12.793,100.9078],[12.78,100.9015],[12.768,100.8935],[12.761,100.8825],[12.75,100.874],[12.735,100.876],[12.72,100.879],[12.705,100.884],[12.69,100.889],[12.676,100.892],[12.665,100.905],[12.672,100.94],[12.68,100.96],[12.685,100.985]];
+const ROAD=[[12.985,100.925],[12.95,100.913],[12.92,100.905],[12.9,100.903],[12.88,100.906],[12.86,100.911],[12.84,100.9155],[12.82,100.9168],[12.79,100.9172],[12.77,100.921],[12.745,100.918],[12.72,100.905],[12.7,100.8915],[12.685,100.894],[12.672,100.905]];
+const LAT0=12.8191,LNG0=100.9142;
+const proj=(la,ln)=>[(ln-LNG0)*108.6,(LAT0-la)*110.6];
+const NS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("map"),mbox=document.getElementById("mapbox"),sheet=document.getElementById("sheet");
+const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const EMO=Object.fromEntries(CATS.map(c=>[c[0],c[1]]));
+let V={cx:0,cy:0,w:4};let built=false;const marks=[],scaled=[];
+function msize(){const r=mbox.getBoundingClientRect();return [r.width||360,r.height||480];}
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+const pts=a=>a.map(([la,ln])=>proj(la,ln).map(v=>v.toFixed(3)).join(",")).join(" ");
+function applyView(){
+  const [W,H]=msize();const h=V.w*H/W;
+  svg.setAttribute("viewBox",[V.cx-V.w/2,V.cy-h/2,V.w,h].join(" "));
+  const s=V.w/W;
+  for(const g of scaled)g.el.setAttribute("transform","translate("+g.x+" "+g.y+") scale("+s+")");
+  svg.classList.toggle("labels",s<0.0115);
+}
+function coastLng(la){for(let i=0;i<COAST.length-1;i++){const [a1,b1]=COAST[i],[a2,b2]=COAST[i+1];if(a1>=la&&la>=a2&&a1!==a2)return b1+(la-a1)/(a2-a1)*(b2-b1);}return null;}
+function addScaled(g,la,ln){const [x,y]=proj(la,ln);scaled.push({el:g,x,y});return [x,y];}
+function build(){
+  built=true;
+  el("rect",{x:-60,y:-60,width:120,height:120,class:"sea"},svg);
+  const wl=el("g",{},svg);
+  let n=0;
+  for(let la=12.975;la>12.675;la-=0.0165){
+    const c=coastLng(la);if(c===null)continue;
+    for(let k=0;k<3;k++){
+      const ln=c-0.01-k*0.022-((n%2)*0.009);n++;
+      const g=el("g",{class:"wave"},wl);addScaled(g,la,ln);
+      el("path",{d:"M-12 0 q6 -5 12 0 t12 0",style:"animation-delay:"+(-(n*0.73)%4.5).toFixed(2)+"s"},g);
+    }
+  }
+  el("polygon",{class:"land",points:pts(COAST.concat([[12.64,101.08],[13.03,101.08],[13.03,100.906]]))},svg);
+  el("polyline",{class:"road",points:pts(ROAD)},svg);
+  const areas=[["อ่าวไทย",12.83,100.862,"area seaname"],["พัทยา",12.948,100.902,"area"],["จอมเทียน",12.897,100.884,"area"],["นาจอมเทียน",12.833,100.93,"area"],["บางเสร่",12.757,100.912,"area"],["สัตหีบ",12.688,100.92,"area"],["ถ.สุขุมวิท (โดยประมาณ)",12.805,100.9205,"area roadname"]];
+  for(const [t,la,ln,c] of areas){const g=el("g",{},svg);addScaled(g,la,ln);el("text",{class:c},g).textContent=t;}
+  const layer=el("g",{},svg);
+  const list=P.map((p,i)=>({p,i,ll:LL[p.n]})).filter(o=>o.ll).sort((a,b)=>b.ll[0]-a.ll[0]);
+  for(const o of list){
+    const g=el("g",{class:"mk",tabindex:"0",role:"button","aria-label":o.p.n,"data-i":o.i},layer);
+    addScaled(g,o.ll[0],o.ll[1]);
+    el("circle",{class:"pulse",r:14,style:"animation-delay:"+(-(o.i*0.37)%2.8).toFixed(2)+"s"},g);
+    el("circle",{class:"ring",r:14},g);
+    el("text",{class:"emo"},g).textContent=EMO[o.p.c];
+    const lb=el("text",{class:"lbl",x:19,y:4},g);lb.textContent=o.p.n;
+    marks.push({p:o.p,g});
+  }
+  const hg=el("g",{class:"home-mk",tabindex:"0",role:"button","aria-label":"หอพักย่าทรัพย์","data-home":"1"},svg);
+  addScaled(hg,LAT0,LNG0);
+  el("circle",{class:"ripple",r:12},hg);el("circle",{class:"ripple r2",r:12},hg);
+  el("circle",{class:"core",r:10},hg);
+  el("text",{class:"emo",style:"font-size:12px;text-anchor:middle;dominant-baseline:central"},hg).textContent="🏠";
+  el("text",{class:"lbl",x:15,y:-12},hg).textContent="หอย่าทรัพย์";
+  const noLL=P.filter(p=>!LL[p.n]).length;
+  if(noLL)document.getElementById("mapnote").textContent+=" (มี "+noLL+" ที่ที่ไม่มีพิกัด จึงดูได้เฉพาะในหน้ารายการ)";
+}
+function matches(p,d,m){const q=state.q.trim().toLowerCase();return (state.cat==="all"||p.c===state.cat)&&(!state.open||isOpen(p,d,m))&&(!q||(p.n+" "+(p.t||"")).toLowerCase().includes(q));}
+function updateMarkers(){
+  if(!built)return;const {d,m}=bkkNow();
+  for(const k of marks){
+    const s=status(k.p,d,m);
+    k.g.setAttribute("class","mk "+s.k+((s.k==="open"||s.k==="soon")&&k.p.h!=="always"?" live":""));
+    k.g.style.display=matches(k.p,d,m)?"":"none";
+  }
+}
+function fit(a1,a2,n1,n2){const [W,H]=msize();const [x1,y1]=proj(a2,n1),[x2,y2]=proj(a1,n2);const w=Math.max(x2-x1,(y2-y1)*W/H)*1.12;return {cx:(x1+x2)/2,cy:(y1+y2)/2,w};}
+const PRE={near:()=>fit(12.806,12.832,100.906,100.925),south:()=>fit(12.755,12.872,100.88,100.958),pattaya:()=>fit(12.862,12.975,100.865,100.91),all:()=>fit(12.665,12.985,100.858,100.985)};
+const clampW=w=>Math.min(45,Math.max(0.5,w));
+let anim=null;
+function animateTo(t,ms){
+  if(anim)cancelAnimationFrame(anim);
+  if(reduce||!ms){V={cx:t.cx,cy:t.cy,w:clampW(t.w)};applyView();return;}
+  const f={...V},t0=performance.now(),tw=clampW(t.w);
+  const step=now=>{let k=Math.min(1,(now-t0)/ms);k=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    V={cx:f.cx+(t.cx-f.cx)*k,cy:f.cy+(t.cy-f.cy)*k,w:Math.exp(Math.log(f.w)+(Math.log(tw)-Math.log(f.w))*k)};applyView();
+    if(k<1)anim=requestAnimationFrame(step);else anim=null;};
+  anim=requestAnimationFrame(step);
+}
+function go(name){document.querySelectorAll(".mapbtns button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.go===name));animateTo(PRE[name](),1100);}
+function toKm(px,py,v){const [W,H]=msize();const h=v.w*H/W;return [v.cx-v.w/2+px/W*v.w,v.cy-h/2+py/H*h];}
+function zoomAt(px,py,f){const a=toKm(px,py,V);const [W,H]=msize();V.w=clampW(V.w*f);const h=V.w*H/W;V.cx=a[0]-(px/W-.5)*V.w;V.cy=a[1]-(py/H-.5)*h;applyView();}
+function showSheet(html){sheet.innerHTML=html;sheet.classList.add("show");}
+function hideSheet(){sheet.classList.remove("show");}
+function openPlace(i){
+  const p=P[i];const {d,m}=bkkNow();
+  showSheet(card(p,d,m).replace('<article class="place">','<article class="place"><button class="x" type="button" aria-label="ปิด">×</button>'));
+  const [x,y]=proj(...LL[p.n]);const [W,H]=msize();const h=V.w*H/W;
+  animateTo({cx:x,cy:y+h*0.2,w:V.w},600);
+}
+function openHome(){showSheet('<article class="place"><button class="x" type="button" aria-label="ปิด">×</button><div class="pname">🏠 หอพักย่าทรัพย์</div><p class="note">46/4 หมู่ 4 ต.นาจอมเทียน อ.สัตหีบ ชลบุรี 20250 (Google ระบุเป็น 46 หมู่ 8 โทรยืนยันก่อนส่งของ 081-782-2580)</p><div class="actions"><span></span><a class="map" href="https://www.google.com/maps/search/?api=1&query=%E0%B8%AB%E0%B8%AD%E0%B8%9E%E0%B8%B1%E0%B8%81%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%9E%E0%B8%A2%E0%B9%8C&query_place_id=ChIJn820PAyTAjERLrMsMQYwX7A" target="_blank" rel="noopener">เปิดใน Google Maps</a></div></article>');}
+sheet.addEventListener("click",e=>{if(e.target.closest(".x"))hideSheet();});
+sheet.addEventListener("toggle",e=>{const det=e.target;if(det.tagName!=="DETAILS")return;const k=det.dataset.key;if(det.open)openSet.add(k);else openSet.delete(k);},true);
+const ptrs=new Map();let drag=null,moved=0,pinch=null,downT=null;
+svg.addEventListener("pointerdown",e=>{
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===1){downT=e.target.closest(".mk,.home-mk");moved=0;drag={x:e.clientX,y:e.clientY,cx:V.cx,cy:V.cy};svg.classList.add("dragging");}
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];const r=mbox.getBoundingClientRect();const mx=(a.x+b.x)/2-r.left,my=(a.y+b.y)/2-r.top;pinch={d:Math.hypot(a.x-b.x,a.y-b.y),w:V.w,anchor:toKm(mx,my,V)};moved=99;}
+  if(anim){cancelAnimationFrame(anim);anim=null;}
+});
+window.addEventListener("pointermove",e=>{
+  if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  const [W,H]=msize();
+  if(pinch&&ptrs.size>=2){const [a,b]=[...ptrs.values()];const r=mbox.getBoundingClientRect();const mx=(a.x+b.x)/2-r.left,my=(a.y+b.y)/2-r.top;V.w=clampW(pinch.w*pinch.d/Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)));const h=V.w*H/W;V.cx=pinch.anchor[0]-(mx/W-.5)*V.w;V.cy=pinch.anchor[1]-(my/H-.5)*h;applyView();return;}
+  if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved=Math.max(moved,Math.hypot(dx,dy));V.cx=drag.cx-dx*V.w/W;V.cy=drag.cy-dy*V.w/W;applyView();}
+});
+function endPtr(e){
+  if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);
+  if(ptrs.size===0){svg.classList.remove("dragging");
+    if(moved<6){if(downT&&downT.dataset.home)openHome();else if(downT)openPlace(Number(downT.dataset.i));else hideSheet();}
+    drag=null;pinch=null;downT=null;}
+  else if(ptrs.size===1){pinch=null;const [a]=[...ptrs.values()];drag={x:a.x,y:a.y,cx:V.cx,cy:V.cy};}
+}
+window.addEventListener("pointerup",endPtr);window.addEventListener("pointercancel",endPtr);
+svg.addEventListener("wheel",e=>{e.preventDefault();const r=mbox.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,Math.exp(e.deltaY*0.0016));},{passive:false});
+svg.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const t=e.target.closest(".mk,.home-mk");if(!t)return;e.preventDefault();if(t.dataset.home)openHome();else openPlace(Number(t.dataset.i));});
+document.querySelector(".mapbtns").addEventListener("click",e=>{const b=e.target.closest("button");if(b)go(b.dataset.go);});
+document.querySelector(".zoom").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const [W,H]=msize();const t={...V,w:V.w*(b.dataset.z==="in"?0.55:1.8)};animateTo(t,350);});
+window.addEventListener("resize",()=>{if(built)applyView();});
+let introDone=false;
+document.querySelector(".views").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;const v=b.dataset.view;
+  document.querySelectorAll(".views button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  const isMap=v==="map";
+  document.getElementById("mapwrap").hidden=!isMap;document.getElementById("list").hidden=isMap;
+  document.querySelector(".home").hidden=isMap;document.querySelector(".tips").hidden=isMap;document.getElementById("sort").hidden=isMap;
+  if(isMap){
+    if(!built){build();}
+    updateMarkers();
+    if(!introDone){introDone=true;V=PRE.all();applyView();setTimeout(()=>go("near"),450);}
+    else applyView();
+  }
+});
+const baseRender=render;
+render=function(){baseRender();updateMarkers();};
+// ---------- จบส่วนแผนที่ ----------
+document.getElementById("chips").addEventListener("click",e=>{
+  const b=e.target.closest(".chip");if(!b)return;
+  state.cat=b.dataset.cat;render();window.scrollTo({top:0});
+});
+document.getElementById("openOnly").addEventListener("click",e=>{
+  state.open=!state.open;e.currentTarget.setAttribute("aria-pressed",state.open);render();
+});
+document.getElementById("sort").addEventListener("change",e=>{state.sort=e.target.value;render();});
+document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value;render();});
+document.getElementById("list").addEventListener("toggle",e=>{
+  const det=e.target;if(det.tagName!=="DETAILS")return;
+  const k=det.dataset.key;if(det.open)openSet.add(k);else openSet.delete(k);
+},true);
+render();
+setInterval(render,30000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)render();});
+})();
+</script>
+</body>
+</html>
